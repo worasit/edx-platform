@@ -16,6 +16,7 @@ from pytz import UTC
 from six import text_type
 
 from course_blocks.api import get_course_blocks
+from courseware.access import has_access
 from courseware.courses import get_course_by_id
 from courseware.user_state_client import DjangoXBlockUserStateClient
 from instructor_analytics.basic import list_problem_responses
@@ -376,13 +377,18 @@ class CourseGradeReport(object):
         subsection_grades = []
         grade_results = []
         for subsection_location in subsection_headers:
+            store = modulestore()
+            xblock_item = store.get_item(subsection_location)
             subsection_grade = course_grade.subsection_grade(subsection_location)
             if subsection_grade.attempted_graded:
                 grade_result = subsection_grade.percent_graded
+                subsection_grades.append(subsection_grade)
+            elif xblock_item.visible_to_staff_only and not course_grade.user.is_staff:
+                grade_result = u'Not Accessible'
             else:
                 grade_result = u'Not Attempted'
+                subsection_grades.append(subsection_grade)
             grade_results.append([grade_result])
-            subsection_grades.append(subsection_grade)
         return subsection_grades, grade_results
 
     def _user_assignment_average(self, course_grade, subsection_grades, assignment_info):

@@ -16,7 +16,6 @@ from pytz import UTC
 from six import text_type
 
 from course_blocks.api import get_course_blocks
-from courseware.access import has_access
 from courseware.courses import get_course_by_id
 from courseware.user_state_client import DjangoXBlockUserStateClient
 from instructor_analytics.basic import list_problem_responses

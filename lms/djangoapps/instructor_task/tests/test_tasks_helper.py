@@ -1965,7 +1965,7 @@ class TestGradeReport(TestReportMixin, InstructorTaskModuleTestCase):
                         u'Username': self.student.username,
                         u'Grade': '0.13',
                         u'Homework 1: Subsection': '0.5',
-                        u'Homework 2: Hidden': u'Not Attempted',
+                        u'Homework 2: Hidden': u'Not Accessible',
                         u'Homework 3: Unattempted': u'Not Attempted',
                         u'Homework 4: Empty': u'Not Attempted',
                         u'Homework (Avg)': '0.125',

@@ -44,6 +44,9 @@ if (typeof MathJax === 'undefined') {
     };
     // Automatic loading of Mathjax accessibility files
     window.MathJax = {
+        "AssistiveMML": {
+            disabled: false
+        }
         menuSettings: {
             collapsible: true,
             autocollapse: true,

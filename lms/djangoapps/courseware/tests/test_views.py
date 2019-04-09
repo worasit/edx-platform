@@ -18,7 +18,7 @@ from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.urls import reverse, reverse_lazy
 from django.http import Http404, HttpResponseBadRequest
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.test.client import Client
 from django.test.utils import override_settings
 from freezegun import freeze_time
@@ -1698,7 +1698,12 @@ class ProgressPageTests(ProgressPageBaseTests):
         CourseDurationLimitConfig.objects.create(enabled=True, enabled_as_of=datetime(2018, 1, 1))
         user = UserFactory.create()
         self.assertTrue(self.client.login(username=user.username, password='test'))
-        add_course_mode(self.course, upgrade_deadline_expired=False)
+        add_course_mode(
+            self.course,
+            CourseMode.VERIFIED,
+            'Verified Mode',
+            upgrade_deadline_expired=False
+        )
         CourseEnrollmentFactory(user=user, course_id=self.course.id, mode=course_mode)
 
         response = self._get_progress_page()
@@ -2503,6 +2508,57 @@ class TestIndexView(ModuleStoreTestCase):
                     self.assertIn('xblock-student_view-html', response.content)
                     self.assertIn('xblock-student_view-video', response.content)
 
+    @patch('openedx.core.djangoapps.util.user_messages.PageLevelMessages.register_warning_message')
+    def test_courseware_messages_masters_only(self, patch_register_warning_message):
+        with patch('courseware.views.views.CourseTabView.should_show_enroll_button') as patch_should_show_enroll_button:
+            course = CourseFactory()
+
+            # user is unenrolled user
+            user = self.create_user_for_course(course, CourseUserType.UNENROLLED)
+            request = RequestFactory().get('/')
+            request.user = user
+
+            from openedx.core.djangolib.markup import HTML, Text
+            expected_markup_without_button = Text('You must be enrolled in the course to see course content.')
+
+            expected_markup_with_button = u'You must be enrolled in the course to see course content. \
+                            {enroll_link_start}Enroll now{enroll_link_end}.'
+            expected_markup_with_button = Text(expected_markup_with_button).format(
+                enroll_link_start=HTML('<button class="enroll-btn btn-link">'),
+                enroll_link_end=HTML('</button>')
+            )
+
+            patch_should_show_enroll_button.return_value = False
+            views.CourseTabView.register_user_access_warning_messages(request, course)
+            patch_register_warning_message.assert_any_call(request, expected_markup_without_button)
+
+            patch_register_warning_message.reset_mock()
+
+            patch_should_show_enroll_button.return_value = True
+            views.CourseTabView.register_user_access_warning_messages(request, course)
+            patch_register_warning_message.assert_any_call(request, expected_markup_with_button)
+
+    @ddt.data(
+        [True, True, True, False,],
+        [False, True, True, False,],
+        [True, False, True, False,],
+        [True, True, False, False,],
+        [False, False, True, False,],
+        [True, False, False, True,],
+        [False, True, False, False,],
+        [False, False, False, False,],
+    )
+    @ddt.unpack
+    def test_should_show_enroll_button(self, course_open_for_self_enrollment, invitation_only, is_masters_only, expected_should_show_enroll_button):
+        with patch('courseware.views.views.course_open_for_self_enrollment') as patch_course_open_for_self_enrollment, patch('course_modes.models.CourseMode.is_masters_only') as patch_is_masters_only:
+            course = CourseFactory()
+
+            patch_course_open_for_self_enrollment.return_value = course_open_for_self_enrollment
+
+            course.invitation_only = invitation_only
+            patch_is_masters_only.return_value = is_masters_only
+            self.assertEqual(views.CourseTabView.should_show_enroll_button(course), expected_should_show_enroll_button)
+
 
 @ddt.ddt
 class TestIndexViewCompleteOnView(ModuleStoreTestCase, CompletionWaffleTestMixin):
@@ -2784,7 +2840,12 @@ class TestIndexViewWithCourseDurationLimits(ModuleStoreTestCase):
         """
         CourseDurationLimitConfig.objects.create(enabled=True, enabled_as_of=datetime(2018, 1, 1))
         self.assertTrue(self.client.login(username=self.user.username, password='test'))
-        add_course_mode(self.course, upgrade_deadline_expired=False)
+        add_course_mode(
+            self.course,
+            CourseMode.VERIFIED,
+            'Verified Mode',
+            upgrade_deadline_expired=False
+        )
         response = self.client.get(
             reverse(
                 'courseware_section',
@@ -2810,7 +2871,12 @@ class TestIndexViewWithCourseDurationLimits(ModuleStoreTestCase):
         """
         CourseDurationLimitConfig.objects.create(enabled=False)
         self.assertTrue(self.client.login(username=self.user.username, password='test'))
-        add_course_mode(self.course, upgrade_deadline_expired=False)
+        add_course_mode(
+            self.course,
+            CourseMode.VERIFIED,
+            'Verified Mode',
+            upgrade_deadline_expired=False
+        )
         response = self.client.get(
             reverse(
                 'courseware_section',

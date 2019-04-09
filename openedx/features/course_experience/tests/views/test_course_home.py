@@ -58,7 +58,7 @@ from xmodule.modulestore.tests.django_utils import CourseUserType, ModuleStoreTe
 from xmodule.modulestore.tests.factories import CourseFactory, ItemFactory, check_mongo_calls
 
 from ... import COURSE_PRE_START_ACCESS_FLAG, ENABLE_COURSE_GOALS
-from .helpers import add_course_mode
+from .helpers import add_course_mode, remove_course_mode
 from .test_course_updates import create_course_update, remove_course_updates
 
 TEST_PASSWORD = 'test'
@@ -246,7 +246,12 @@ class TestCourseHomePageAccess(CourseHomePageTestCase):
         super(TestCourseHomePageAccess, self).setUp()
 
         # Make this a verified course so that an upgrade message might be shown
-        add_course_mode(self.course, upgrade_deadline_expired=False)
+        add_course_mode(
+            self.course,
+            CourseMode.VERIFIED,
+            'Verified Mode',
+            upgrade_deadline_expired=False
+        )
 
         # Add a welcome message
         create_course_update(self.course, self.staff_user, TEST_WELCOME_MESSAGE)
@@ -656,6 +661,41 @@ class TestCourseHomePageAccess(CourseHomePageTestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
+    
+    @override_waffle_flag(COURSE_PRE_START_ACCESS_FLAG, active=True)
+    def test_masters_course_message(self):
+        enroll_button_html = "<button class=\"enroll-btn btn-link\">Enroll now</button>"
+
+        # Verify that unenrolled users visiting a course with a Master's track
+        # that is not the only track are shown an enroll call to action message
+        add_course_mode(
+            self.course,
+            CourseMode.MASTERS,
+            'Master\'s Mode',
+            upgrade_deadline_expired=False,
+        )
+
+        user = self.create_user_for_course(self.course, CourseUserType.UNENROLLED)
+        url = course_home_url(self.course)
+        response = self.client.get(url)
+
+        self.assertContains(response, TEST_COURSE_HOME_MESSAGE)
+        self.assertContains(response, TEST_COURSE_HOME_MESSAGE_UNENROLLED)
+        self.assertContains(response, enroll_button_html)
+
+        # Verify that unenrolled users visiting a course that contains only a Master's track
+        # are not shown an enroll call to action message
+        remove_course_mode(self.course, CourseMode.VERIFIED)
+
+        response = self.client.get(url)
+
+        expected_message = ('You must be enrolled in the course to see course content. '
+                            'Please contact your degree administrator or edX Support if you have questions.')
+        self.assertContains(response, TEST_COURSE_HOME_MESSAGE)
+        self.assertContains(response, expected_message)
+        self.assertNotContains(response, enroll_button_html)
+
+
     @override_waffle_flag(COURSE_PRE_START_ACCESS_FLAG, active=True)
     def test_course_messaging(self):
         """
@@ -795,7 +835,12 @@ class TestCourseHomePageAccess(CourseHomePageTestCase):
         """
         # Create a course with a verified track.
         verifiable_course = CourseFactory.create()
-        add_course_mode(verifiable_course, upgrade_deadline_expired=False)
+        add_course_mode(
+            verifiable_course,
+            CourseMode.VERIFIED,
+            'Verified Mode',
+            upgrade_deadline_expired=False
+        )
 
         # Verify that unenrolled users are not shown the set course goal message.
         user = self.create_user_for_course(verifiable_course, CourseUserType.UNENROLLED)
@@ -837,7 +882,12 @@ class TestCourseHomePageAccess(CourseHomePageTestCase):
         """
         # Create a course with a verified track.
         verifiable_course = CourseFactory.create()
-        add_course_mode(verifiable_course, upgrade_deadline_expired=False)
+        add_course_mode(
+            verifiable_course,
+            CourseMode.VERIFIED,
+            'Verified Mode',
+            upgrade_deadline_expired=False
+        )
 
         # Verify that unenrolled users are not shown the update goal selection field.
         user = self.create_user_for_course(verifiable_course, CourseUserType.UNENROLLED)

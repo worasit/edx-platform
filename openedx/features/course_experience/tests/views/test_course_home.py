@@ -661,19 +661,13 @@ class TestCourseHomePageAccess(CourseHomePageTestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
-    
     @override_waffle_flag(COURSE_PRE_START_ACCESS_FLAG, active=True)
     def test_masters_course_message(self):
         enroll_button_html = "<button class=\"enroll-btn btn-link\">Enroll now</button>"
 
         # Verify that unenrolled users visiting a course with a Master's track
         # that is not the only track are shown an enroll call to action message
-        add_course_mode(
-            self.course,
-            CourseMode.MASTERS,
-            'Master\'s Mode',
-            upgrade_deadline_expired=False,
-        )
+        add_course_mode(self.course, upgrade_deadline_expired=False)
 
         user = self.create_user_for_course(self.course, CourseUserType.UNENROLLED)
         url = course_home_url(self.course)
@@ -694,7 +688,6 @@ class TestCourseHomePageAccess(CourseHomePageTestCase):
         self.assertContains(response, TEST_COURSE_HOME_MESSAGE)
         self.assertContains(response, expected_message)
         self.assertNotContains(response, enroll_button_html)
-
 
     @override_waffle_flag(COURSE_PRE_START_ACCESS_FLAG, active=True)
     def test_course_messaging(self):
@@ -835,12 +828,7 @@ class TestCourseHomePageAccess(CourseHomePageTestCase):
         """
         # Create a course with a verified track.
         verifiable_course = CourseFactory.create()
-        add_course_mode(
-            verifiable_course,
-            CourseMode.VERIFIED,
-            'Verified Mode',
-            upgrade_deadline_expired=False
-        )
+        add_course_mode(verifiable_course, upgrade_deadline_expired=False)
 
         # Verify that unenrolled users are not shown the set course goal message.
         user = self.create_user_for_course(verifiable_course, CourseUserType.UNENROLLED)
@@ -882,12 +870,7 @@ class TestCourseHomePageAccess(CourseHomePageTestCase):
         """
         # Create a course with a verified track.
         verifiable_course = CourseFactory.create()
-        add_course_mode(
-            verifiable_course,
-            CourseMode.VERIFIED,
-            'Verified Mode',
-            upgrade_deadline_expired=False
-        )
+        add_course_mode(verifiable_course, upgrade_deadline_expired=False)
 
         # Verify that unenrolled users are not shown the update goal selection field.
         user = self.create_user_for_course(verifiable_course, CourseUserType.UNENROLLED)

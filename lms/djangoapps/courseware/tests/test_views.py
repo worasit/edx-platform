@@ -1698,12 +1698,7 @@ class ProgressPageTests(ProgressPageBaseTests):
         CourseDurationLimitConfig.objects.create(enabled=True, enabled_as_of=datetime(2018, 1, 1))
         user = UserFactory.create()
         self.assertTrue(self.client.login(username=user.username, password='test'))
-        add_course_mode(
-            self.course,
-            CourseMode.VERIFIED,
-            'Verified Mode',
-            upgrade_deadline_expired=False
-        )
+        add_course_mode(self.course, upgrade_deadline_expired=False)
         CourseEnrollmentFactory(user=user, course_id=self.course.id, mode=course_mode)
 
         response = self._get_progress_page()
@@ -2539,14 +2534,14 @@ class TestIndexView(ModuleStoreTestCase):
             patch_register_warning_message.assert_any_call(request, expected_markup_with_button)
 
     @ddt.data(
-        [True, True, True, False,],
-        [False, True, True, False,],
-        [True, False, True, False,],
-        [True, True, False, False,],
-        [False, False, True, False,],
-        [True, False, False, True,],
-        [False, True, False, False,],
-        [False, False, False, False,],
+        [True, True, True, False, ],
+        [False, True, True, False, ],
+        [True, False, True, False, ],
+        [True, True, False, False, ],
+        [False, False, True, False, ],
+        [True, False, False, True, ],
+        [False, True, False, False, ],
+        [False, False, False, False, ],
     )
     @ddt.unpack
     def test_should_show_enroll_button(self, course_open_for_self_enrollment, invitation_only, is_masters_only, expected_should_show_enroll_button):
@@ -2840,12 +2835,7 @@ class TestIndexViewWithCourseDurationLimits(ModuleStoreTestCase):
         """
         CourseDurationLimitConfig.objects.create(enabled=True, enabled_as_of=datetime(2018, 1, 1))
         self.assertTrue(self.client.login(username=self.user.username, password='test'))
-        add_course_mode(
-            self.course,
-            CourseMode.VERIFIED,
-            'Verified Mode',
-            upgrade_deadline_expired=False
-        )
+        add_course_mode(self.course, upgrade_deadline_expired=False)
         response = self.client.get(
             reverse(
                 'courseware_section',
@@ -2871,12 +2861,7 @@ class TestIndexViewWithCourseDurationLimits(ModuleStoreTestCase):
         """
         CourseDurationLimitConfig.objects.create(enabled=False)
         self.assertTrue(self.client.login(username=self.user.username, password='test'))
-        add_course_mode(
-            self.course,
-            CourseMode.VERIFIED,
-            'Verified Mode',
-            upgrade_deadline_expired=False
-        )
+        add_course_mode(self.course, upgrade_deadline_expired=False)
         response = self.client.get(
             reverse(
                 'courseware_section',

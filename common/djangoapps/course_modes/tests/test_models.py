@@ -508,7 +508,7 @@ class CourseModeModelTest(TestCase):
     def test_is_masters_only(self, available_modes, expected_is_masters_only):
         for mode in available_modes:
             self.create_mode(mode, mode, 10)
-        
+
         self.assertEqual(CourseMode.is_masters_only(self.course_key), expected_is_masters_only)
 
 

@@ -132,9 +132,9 @@ def _register_course_home_messages(request, course, user_access, course_start_da
             not user_access['is_enrolled']:
 
         title = Text(_(u'Welcome to {course_display_name}')).format(
-                    course_display_name=course.display_name
-                )
-        
+            course_display_name=course.display_name
+        )
+
         if CourseMode.is_masters_only(course.id):
             # if a course is a Master's only course, we will not offer user ability to self-enroll
             CourseHomeMessages.register_info_message(

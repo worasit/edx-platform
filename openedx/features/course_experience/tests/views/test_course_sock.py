@@ -35,24 +35,9 @@ class TestCourseSockView(SharedModuleStoreTestCase):
         cls.verified_course_already_enrolled = CourseFactory.create()
 
         # Assign each verifiable course an upgrade deadline
-        add_course_mode(
-            cls.verified_course,
-            CourseMode.VERIFIED,
-            'Verified Mode',
-            upgrade_deadline_expired=False
-        )
-        add_course_mode(
-            cls.verified_course_update_expired,
-            CourseMode.VERIFIED,
-            'Verified Mode',
-            upgrade_deadline_expired=True
-        )
-        add_course_mode(
-            cls.verified_course_already_enrolled,
-            CourseMode.VERIFIED,
-            'Verified Mode',
-            upgrade_deadline_expired=False
-        )
+        add_course_mode(cls.verified_course, upgrade_deadline_expired=False)
+        add_course_mode(cls.verified_course_update_expired, upgrade_deadline_expired=True)
+        add_course_mode(cls.verified_course_already_enrolled, upgrade_deadline_expired=False)
 
     def setUp(self):
         super(TestCourseSockView, self).setUp()

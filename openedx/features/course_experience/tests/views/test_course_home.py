@@ -246,12 +246,7 @@ class TestCourseHomePageAccess(CourseHomePageTestCase):
         super(TestCourseHomePageAccess, self).setUp()
 
         # Make this a verified course so that an upgrade message might be shown
-        add_course_mode(
-            self.course,
-            CourseMode.VERIFIED,
-            'Verified Mode',
-            upgrade_deadline_expired=False
-        )
+        add_course_mode(self.course, upgrade_deadline_expired=False)
 
         # Add a welcome message
         create_course_update(self.course, self.staff_user, TEST_WELCOME_MESSAGE)

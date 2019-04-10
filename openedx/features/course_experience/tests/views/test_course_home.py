@@ -664,7 +664,7 @@ class TestCourseHomePageAccess(CourseHomePageTestCase):
         # that is not the only track are shown an enroll call to action message
         add_course_mode(self.course, upgrade_deadline_expired=False)
 
-        user = self.create_user_for_course(self.course, CourseUserType.UNENROLLED)
+        self.create_user_for_course(self.course, CourseUserType.UNENROLLED)
         url = course_home_url(self.course)
         response = self.client.get(url)
 

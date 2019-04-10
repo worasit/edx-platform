@@ -569,7 +569,9 @@ class CourseTabView(EdxFragmentView):
 
     @staticmethod
     def should_show_enroll_button(course):
-        return course_open_for_self_enrollment(course.id) and not course.invitation_only and not CourseMode.is_masters_only(course.id)
+        return (course_open_for_self_enrollment(course.id) 
+            and not course.invitation_only 
+            and not CourseMode.is_masters_only(course.id))
 
     @staticmethod
     def handle_exceptions(request, course_key, course, exception):

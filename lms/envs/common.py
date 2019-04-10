@@ -119,7 +119,7 @@ FEATURES = {
     # .. toggle_name: ENABLE_SYSADMIN_DASHBOARD
     # .. toggle_type: feature_flag
     # .. toggle_default: False
-    # .. toggle_description: enables dashboard at /syadmin/ for django staff, for seeing overview of system status, for deleting and loading courses, for seeing log of git imports of courseware.
+    # .. toggle_description: enables dashboard at /syadmin/ for Django staff
     # .. toggle_category: admin
     # .. toggle_use_cases: open_edx
     # .. toggle_creation_date: 2013-12-12

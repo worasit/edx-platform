@@ -454,7 +454,7 @@ class CourseAuthorization(models.Model):
 # .. toggle_name: require_course_email_auth
 # .. toggle_type: ConfigurationModel
 # .. toggle_default: True (enabled)
-# .. toggle_description: If the flag is enabled, course-specific authorization is required, and the course_id is either not provided or not authorixed, the feature is not available.
+# .. toggle_description: If flag is enabled, course-specific authorization is required
 # .. toggle_category: bulk email
 # .. toggle_use_cases: open_edx
 # .. toggle_creation_date: 2016-05-05

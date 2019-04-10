@@ -19,6 +19,7 @@ from django.utils.translation import ugettext_lazy as _
 from provider.oauth2.models import Client
 from provider.utils import long_token
 from social_core.backends.base import BaseAuth
+from social_core.backends.facebook import FacebookOAuth2
 from social_core.backends.oauth import OAuthAuth
 from social_core.backends.saml import SAMLAuth
 from social_core.exceptions import SocialAuthBaseException

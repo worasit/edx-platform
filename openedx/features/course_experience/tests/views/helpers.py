@@ -11,7 +11,7 @@ from course_modes.models import CourseMode
 TEST_COURSE_PRICE = 50
 
 
-def add_course_mode(course, mode_slug = CourseMode.VERIFIED, mode_display_name='Verified Certificate', upgrade_deadline_expired=False):
+def add_course_mode(course, mode_slug=CourseMode.VERIFIED, mode_display_name='Verified Certificate', upgrade_deadline_expired=False):
     """
     Adds a course mode to the test course.
     """
